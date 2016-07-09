@@ -59,7 +59,7 @@ public class Iceskies extends IcesceneApp implements ActionListener {
 			throw new Exception("No URL supplied.");
 		}
 		Iceskies app = new Iceskies(cmdLine);
-		startApp(app, cmdLine, "PlanetForever - " + AppInfo.getName() + " - " + AppInfo.getVersion(),
+		startApp(app, cmdLine, AppInfo.getName() + " - " + AppInfo.getVersion(),
 				SkiesConstants.APPSETTINGS_NAME);
 	}
 
