@@ -1,15 +1,24 @@
 package org.iceskies.environment;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.icescene.ServiceRef;
+import org.icescripting.ScriptEvalException;
 import org.icescripting.Scripts;
 
+import com.jme3.asset.AssetInfo;
+import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.AssetNotFoundException;
 
@@ -19,6 +28,8 @@ import icemoon.iceloader.ServerAssetManager;
  * Manages configuration of skies from scripts.
  */
 public class EnvironmentManager {
+
+	private final static Logger LOG = Logger.getLogger(EnvironmentManager.class.getName());
 
 	private static EnvironmentManager instance;
 
@@ -43,11 +54,32 @@ public class EnvironmentManager {
 			Scripts.get().eval("Environment/Environment_Local.js");
 		} catch (AssetNotFoundException anfe) {
 		}
-		Scripts.get().eval("Environment/Environments.js");
+
+		try {
+			Scripts.get().eval("Environment/Environments.js");
+		} catch (ScriptEvalException see) {
+			AssetInfo ai = assetManager.locateAsset(new AssetKey<String>("Environment/Environments.js"));
+			InputStream in = ai.openStream();
+			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+			String line;
+			LOG.severe("Failed to process environment script");
+			try {
+				try {
+					while ((line = br.readLine()) != null) {
+						LOG.severe(line);
+					}
+				} catch (IOException ie) {
+				}
+			} finally {
+				IOUtils.closeQuietly(in);
+			}
+			throw see;
+		}
 
 	}
 
-	public AbstractEnvironmentConfiguration newConfiguration(String key, Class<? extends AbstractEnvironmentConfiguration> clazz) {
+	public AbstractEnvironmentConfiguration newConfiguration(String key,
+			Class<? extends AbstractEnvironmentConfiguration> clazz) {
 		try {
 			AbstractEnvironmentConfiguration config = clazz.getConstructor(String.class).newInstance(key);
 			if (!environments.addConfiguration(config)) {
@@ -97,7 +129,8 @@ public class EnvironmentManager {
 		if (environments.containsKey(key)) {
 			AbstractEnvironmentConfiguration abstractEnvironmentConfiguration = environments.get(key);
 			if (abstractEnvironmentConfiguration instanceof EnvironmentGroupConfiguration) {
-				throw new IllegalArgumentException(String.format("Must provide a key for a configuration, not a group '%s'.", key));
+				throw new IllegalArgumentException(
+						String.format("Must provide a key for a configuration, not a group '%s'.", key));
 			}
 			return abstractEnvironmentConfiguration;
 		} else {
@@ -116,9 +149,9 @@ public class EnvironmentManager {
 	public boolean isEnvironment(String env) {
 		return environments.containsKey(env) && environments.get(env) instanceof EnvironmentGroupConfiguration;
 	}
-	
+
 	private void loadJsonEnvironment(String path) {
-		
+
 	}
 
 	private void loadEnvironments() {
@@ -144,9 +177,9 @@ public class EnvironmentManager {
 					Scripts.get().eval(local);
 				}
 			}
-			
+
 			// Load JSON environments
-			for(String json : ((ServerAssetManager)assetManager).getAssetNamesMatching("Environment/.*\\.json")) {
+			for (String json : ((ServerAssetManager) assetManager).getAssetNamesMatching("Environment/.*\\.json")) {
 				loadJsonEnvironment(json);
 			}
 		}
