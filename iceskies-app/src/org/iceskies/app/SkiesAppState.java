@@ -57,16 +57,15 @@ public class SkiesAppState extends AbstractDebugSceneAppState implements Propert
 			}
 		} else {
 			if (light.isDirectionalAllowed() && sunArrow == null) {
-				sunArrow = new Arrow(light.getSunDirection().mult(SkiesConstants.DIRECTIONAL_LIGHT_ARROW_SCALE));
-				sunArrow.setLineWidth(2);
-				sunGeometry = putShape(arrowNode, sunArrow, light.getSunColor());
-				sunGeometry.getLocalTranslation().y = SkiesConstants.DIRECTIONAL_LIGHT_ARROW_SCALE;
+				sunArrow = new Arrow(light.getSunDirection().mult(IceskiesConstants.DIRECTIONAL_LIGHT_ARROW_SCALE));
+				sunGeometry = putShape(arrowNode, sunArrow, light.getSunColor(), 2);
+				sunGeometry.getLocalTranslation().y = IceskiesConstants.DIRECTIONAL_LIGHT_ARROW_SCALE;
 			} else if (!light.isDirectionalEnabled() && sunArrow != null) {
 				sunGeometry.removeFromParent();
 				sunGeometry = null;
 				sunArrow = null;
 			} else if (light.isDirectionalAllowed() && sunArrow != null) {
-				sunArrow.setArrowExtent(light.getSunDirection().mult(SkiesConstants.DIRECTIONAL_LIGHT_ARROW_SCALE));
+				sunArrow.setArrowExtent(light.getSunDirection().mult(IceskiesConstants.DIRECTIONAL_LIGHT_ARROW_SCALE));
 				sunGeometry.getMaterial().setColor("Color", light.getSunColor());
 			}
 

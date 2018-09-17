@@ -6,14 +6,12 @@ import java.util.logging.Logger;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.icelib.AppInfo;
-import org.icelib.PageLocation;
-import org.icelib.UndoManager;
 import org.icescene.HUDMessageAppState;
 import org.icescene.IcesceneApp;
-import org.icescene.SceneConfig;
 import org.icescene.SceneConstants;
 import org.icescene.assets.Assets;
 import org.icescene.audio.AudioAppState;
+import org.icescene.camera.CameraSpeedAppState;
 import org.icescene.console.ConsoleAppState;
 import org.icescene.debug.LoadScreenAppState;
 import org.icescene.environment.EnvironmentLight;
@@ -22,21 +20,22 @@ import org.icescene.environment.PostProcessAppState;
 import org.icescene.io.ModifierKeysAppState;
 import org.icescene.io.MouseManager;
 import org.icescene.options.OptionsAppState;
-import org.icescene.ui.WindowManagerAppState;
+import org.iceui.actions.ActionAppState;
 import org.lwjgl.opengl.Display;
 
-import com.jme3.bullet.BulletAppState;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 
 import icemoon.iceloader.ServerAssetManager;
+import icetone.core.undo.UndoManager;
+import icetone.extras.appstates.FrameManagerAppState;
 
 public class Iceskies extends IcesceneApp implements ActionListener {
 
 	static {
-		System.setProperty("iceloader.assetCache", System.getProperty("user.home") + File.separator + ".cache" + File.separator
-				+ "iceskies" + File.separator + "assets");
+		System.setProperty("iceloader.assetCache", System.getProperty("user.home") + File.separator + ".cache"
+				+ File.separator + "iceskies" + File.separator + "assets");
 	}
 
 	private final static String MAPPING_OPTIONS = "Options";
@@ -59,15 +58,14 @@ public class Iceskies extends IcesceneApp implements ActionListener {
 			throw new Exception("No URL supplied.");
 		}
 		Iceskies app = new Iceskies(cmdLine);
-		startApp(app, cmdLine, AppInfo.getName() + " - " + AppInfo.getVersion(),
-				SkiesConstants.APPSETTINGS_NAME);
+		startApp(app, cmdLine, AppInfo.getName() + " - " + AppInfo.getVersion(), IceskiesConstants.APPSETTINGS_NAME);
 	}
 
 	private Vector3f lastLocation;
 	private Node weatherNode;
 
 	private Iceskies(CommandLine commandLine) {
-		super(SkiesConfig.get(), commandLine, SkiesConstants.APPSETTINGS_NAME, "META-INF/TerrainAssets.cfg");
+		super(SkiesConfig.get(), commandLine, IceskiesConstants.APPSETTINGS_NAME, "META-INF/TerrainAssets.cfg");
 		setUseUI(true);
 		setPauseOnLostFocus(false);
 	}
@@ -93,19 +91,14 @@ public class Iceskies extends IcesceneApp implements ActionListener {
 
 		getCamera().setFrustumFar(SceneConstants.WORLD_FRUSTUM);
 
-		/*
-		 * The scene heirarchy is roughly :-
-		 * 
-		 * MainCamera MapCamera | | / \ | / \ GameNode |\______ MappableNode |
-		 * |\_________TerrainNode | \__________SceneryNode | \_______ WorldNode
-		 * |\________ClutterNode \_________CreaturesNode
-		 */
-
-		flyCam.setMoveSpeed(prefs.getFloat(SceneConfig.BUILD_MOVE_SPEED, SceneConfig.BUILD_MOVE_SPEED_DEFAULT));
-		flyCam.setRotationSpeed(prefs.getFloat(SceneConfig.BUILD_ROTATE_SPEED, SceneConfig.BUILD_ROTATE_SPEED_DEFAULT));
-		flyCam.setZoomSpeed(prefs.getFloat(SceneConfig.BUILD_ZOOM_SPEED, SceneConfig.BUILD_ZOOM_SPEED_DEFAULT));
 		flyCam.setDragToRotate(true);
 		flyCam.setEnabled(true);
+
+		stateManager.attach(new CameraSpeedAppState(flyCam, prefs));
+
+		// MenuBar
+		stateManager.attach(new ActionAppState(screen));
+
 		setPauseOnLostFocus(false);
 
 		// Scene
@@ -115,7 +108,7 @@ public class Iceskies extends IcesceneApp implements ActionListener {
 		Node worldNode = new Node("World");
 		gameNode.attachChild(worldNode);
 		rootNode.attachChild(gameNode);
-		
+
 		// Download progress
 		LoadScreenAppState load = new LoadScreenAppState(prefs);
 		load.setAutoShowOnDownloads(true);
@@ -128,7 +121,7 @@ public class Iceskies extends IcesceneApp implements ActionListener {
 		screen.setUIAudioVolume(audioAppState.getActualUIVolume());
 
 		// Some windows need management
-		stateManager.attach(new WindowManagerAppState(prefs));
+		stateManager.attach(new FrameManagerAppState(screen));
 
 		// For error messages and stuff
 		stateManager.attach(new HUDMessageAppState());
@@ -144,7 +137,7 @@ public class Iceskies extends IcesceneApp implements ActionListener {
 		stateManager.attach(new SkiesAppState(prefs, gameNode, el));
 
 		// Mouse manager for dealing with clicking, dragging etc.
-		final MouseManager mouseManager = new MouseManager(rootNode, getAlarm());
+		final MouseManager mouseManager = new MouseManager(rootNode);
 		stateManager.attach(mouseManager);
 
 		// Need the post processor for pretty water
@@ -185,43 +178,7 @@ public class Iceskies extends IcesceneApp implements ActionListener {
 		if (lastLocation == null || !cam.getLocation().equals(lastLocation)) {
 			weatherNode.setLocalTranslation(cam.getLocation());
 			lastLocation = cam.getLocation().clone();
-//			lastRotation = cam.getRotation().clone();
-			// b
-			// updateLocationPreferencesTimer = getAlarm().timed(new
-			// Callable<Void>() {
-			// public Void call() throws Exception {
-			// TerrainTemplateConfiguration template =
-			// terrainLoader.getDefaultTerrainTemplate();
-			// if (template != null) {
-			// String templateName = template.getBaseTemplateName();
-			// Preferences node = prefs.node(templateName);
-			// node.putFloat("cameraLocationX", lastLocation.x);
-			// node.putFloat("cameraLocationY", lastLocation.y);
-			// node.putFloat("cameraLocationZ", lastLocation.z);
-			// node.putFloat("cameraRotationX", lastRotation.getX());
-			// node.putFloat("cameraRotationY", lastRotation.getY());
-			// node.putFloat("cameraRotationZ", lastRotation.getZ());
-			// node.putFloat("cameraRotationW", lastRotation.getW());
-			// }
-			//
-			// return null;
-			// }
-			// }, 5f);
-			// PageLocation viewTile = getViewTile();
 		}
-	}
-
-	private PageLocation getViewTile() {
-		// TerrainTemplateConfiguration template =
-		// terrainLoader.getTerrainTemplate();
-		// if (template == null || terrainLoader.isGlobalTerrainTemplate()) {
-		// return PageLocation.UNSET;
-		// } else {
-		// Vector3f loc = lastLocation;
-		// return loc == null ? PageLocation.UNSET :
-		// template.getTile(IceUI.toVector2fXZ(loc));
-		// }
-		return PageLocation.UNSET;
 	}
 
 	public void onAction(String name, boolean isPressed, float tpf) {

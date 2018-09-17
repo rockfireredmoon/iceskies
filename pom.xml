@@ -14,5 +14,7 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>iceskies-app</module>
+		<module>iceskies-core</module>
+		<module>iceskies-pkg-getdown</module>
 	</modules>
 </project>

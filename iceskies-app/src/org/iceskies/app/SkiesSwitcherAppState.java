@@ -3,13 +3,14 @@ package org.iceskies.app;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.Preferences;
 
-import org.icelib.UndoManager;
 import org.icescene.environment.EnvironmentLight;
 import org.iceskies.environment.EditableEnvironmentSwitcherAppState;
 import org.iceskies.environment.EnvironmentAppState;
 import org.iceskies.environment.EnvironmentManager;
 
 import com.jme3.scene.Node;
+
+import icetone.core.undo.UndoManager;
 
 public class SkiesSwitcherAppState extends EditableEnvironmentSwitcherAppState {
 

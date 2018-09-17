@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>iceskies-app</artifactId>
 	<name>Iceskies</name>
-	<description>Sky system and and editor</description>
+	<description>Standalone Sky system editor</description>
 	<parent>
 		<groupId>org.icemoon</groupId>
 		<artifactId>iceskies</artifactId>
@@ -68,16 +68,11 @@
 	</build>
 	<dependencies>
 		<dependency>
-			<groupId>jME3-ext</groupId>
-			<artifactId>ImagePainter</artifactId>
-			<version>0.0.0</version>
-		</dependency>
-		<dependency>
 			<groupId>org.icemoon</groupId>
-			<artifactId>icescene</artifactId>
+			<artifactId>iceskies-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		 <dependency>
+		<dependency>
 			<groupId>org.icemoon</groupId>
 			<artifactId>iceassets</artifactId>
 			<version>${project.version}</version>

@@ -1,0 +1,9 @@
+Package: iceskies
+Version: [[version]]
+Section: misc
+Priority: optional
+Architecture: all
+Depends: openjdk-8-jre-lib | openjdk-8-jdk | oracle-java8-install | default-jre
+Maintainer: Emerald Icemoon <emerald.icemoon@gmail.com>
+Description: Earth Eternal Environment Editor
+Distribution: development

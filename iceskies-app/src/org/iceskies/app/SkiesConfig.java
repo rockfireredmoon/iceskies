@@ -18,6 +18,6 @@ public class SkiesConfig extends SceneConfig {
     }
 
     public static Preferences get() {
-        return Preferences.userRoot().node(SkiesConstants.APPSETTINGS_NAME).node("game");
+        return Preferences.userRoot().node(IceskiesConstants.APPSETTINGS_NAME).node("game");
     }
 }

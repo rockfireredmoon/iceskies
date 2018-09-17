@@ -1,0 +1,16 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Iceskies
+Name[en_GB]=Iceskies
+GenericName=Earth Eternal Environment Editor
+GenericName[en_GB]=Earth Eternal Environment Editor
+Comment=Earth Eternal Environment Editor
+Icon=iceskies.png
+TryExec=iceskies
+Exec=iceskies
+Terminal=false
+# Categorie entry according to version 1.0 of
+# http://www.freedesktop.org/wiki/Specifications/menu-spec
+Categories=GNOME;Network;
+Encoding=UTF-8

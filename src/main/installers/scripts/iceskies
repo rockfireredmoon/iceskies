@@ -1,0 +1,21 @@
+#!/bin/bash
+
+CACHE_DIR="${HOME}/.cache/iceskies"
+mkdir -p "${CACHE_DIR}"
+pushd "${CACHE_DIR}"
+for i in /usr/lib/iceskies/* ; do
+	basename="$(basename ${i})"
+	if [ ! -f "${basename}" -a ! -L "${basename}" ]; then
+		ln -s "${i}" . 2>/dev/null
+	fi
+done
+
+
+if [ ! -f logging.properties ] ; then
+	ln -sf /etc/iceskies/logging.properties logging.properties
+fi 
+if [ $# = 0 ] ; then
+	java -jar /usr/lib/iceskies/getdown.jar .
+else
+	java -jar /usr/lib/iceskies/getdown.jar . "" $@
+fi 
